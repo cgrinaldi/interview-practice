@@ -23,36 +23,53 @@ function getProductsOfAllIntsExceptAtIndexBRUTE (array) {
 }
 
 // EFFICIENT SOLN (O(N) since only single pass)
+// This isn't a great way to do it because it is expensive in terms of cost
 function getProductsOfAllIntsExceptAtIndex (arr) {
-  var nums = [arr.slice(1)];
-  for (var i = 1; i < arr.length; i++) {
-    var subSeq = nums[i-1].slice(0); // to make sure we operate on a copy
-    subSeq.shift();
-    subSeq.push(arr[i-1]);
-    nums.push(subSeq);
+  var beforeProducts = calcBeforeProducts(arr);
+  var afterProducts = calcBeforeProducts(arr.reverse()).reverse();
+  var result = [];
+  for (var i = 0; i < arr.length; i++) {
+    result.push(beforeProducts[i] * afterProducts[i]);
   }
-  return nums.map(prod);
-}
-
-// For each method
-function prod(numbers) {
-  var result = 1;
-  numbers.forEach(function(num) {
-    result *= num;
-  });
   return result;
 }
 
-// Reduce method
-function prod(numbers) {
-  return numbers.reduce(function(acc, curr) {
-    return acc * curr;
-  });
+function calcBeforeProducts(arr) {
+  var result = [1];
+  var prod = 1;
+  for (var i = 0; i < arr.length-1; i++) {
+    prod *= arr[i];
+    result.push(prod);
+  }
+  return result;
 }
 
-// Reduce and arrow functions
-function prod(numbers) {
-  return numbers.reduce((prod, num) => prod * num);
+// BETTER SOLN
+function getProductsOfAllIntsExceptAtIndex(arr) {
+  var result = [];
+  var product_so_far = 1;
+  var i = 0;
+
+  // For each integer, we find the product of all the integers
+  // before it, storing the total product so far each time
+  while (i < arr.length) {
+    result.push(product_so_far);
+    product_so_far *= arr[i];
+    i += 1;
+  }
+
+  // For each integer, we find the product of all the integers after it.
+  // Since each index in products already has the product of all the
+  // integers before it, now we are storing the total product of all other ints.
+  product_so_far = 1;
+  i = arr.length - 1;
+  while (i >= 0) {
+    result[i] *= product_so_far;
+    product_so_far *= arr[i];
+    i -= 1;
+  }
+
+  return result;
 }
 
 console.log(getProductsOfAllIntsExceptAtIndexBRUTE([1,7,3,4]));
